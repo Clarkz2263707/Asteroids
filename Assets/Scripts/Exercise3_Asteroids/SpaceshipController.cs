@@ -56,12 +56,22 @@ public class AsteroidsPlayerController : MonoBehaviour
 
     private void HandleRotation()
     {
-
+        if (Mathf.Approximately(rotationInput, 0f) == false)
+        {
+            float rotationAmount = -rotationInput * rotationSpeed * Time.deltaTime;
+            transform.Rotate(0f, 0f, rotationAmount);
+        }
     }
 
     private void HandleThrust()
     {
-        
+        if (rb == null)
+            return;
+
+        if (thrustInput > 0f)
+        {
+            rb.AddForce(transform.up * thrustInput * thrustForce * Time.fixedDeltaTime, ForceMode2D.Force);
+        }
     }
 
     private void HandleFire()
@@ -89,6 +99,14 @@ public class AsteroidsPlayerController : MonoBehaviour
 
     private void TeleportToRandomLocation()
     {
+        float randomX = Random.Range(ScreenBounds.ScreenLeft, ScreenBounds.ScreenRight);
+        float randomY = Random.Range(ScreenBounds.ScreenBottom, ScreenBounds.ScreenTop);
+        transform.position = new Vector3(randomX, randomY, transform.position.z);
 
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
     }
 }
