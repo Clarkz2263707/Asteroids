@@ -31,20 +31,64 @@ public class Asteroid : MonoBehaviour
 
     void Start()
     {
-    
+        rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
+            return;
+
+        velocity = (Vector2)transform.up * speed;
+        rb.linearVelocity = velocity;
     }
 
     void Update()
     {
     }
 
-    private void BreakAsteroid()
+    //basically calls upon the spawner/sets the spawner to actually spawn the asteroids.
+    public void SetSpawner(AsteroidSpawner asteroidSpawner)
     {
-
+        spawner = asteroidSpawner;
     }
 
+    //what happens when the asteroid is broken if children are spawned or not
+    private void BreakAsteroid()
+    {
+        if (size == AsteroidSize.Small)
+            return;
+
+        AsteroidSize childSize = size == AsteroidSize.Large ? AsteroidSize.Medium : AsteroidSize.Small;
+
+        if (spawner != null)
+        {
+            SpawnChildren(childSize);
+        }
+    }
+
+    //sets the spawn location of the children of the asteroid
     private void SpawnChildren(AsteroidSize childSize)
     {
-        
+        for (int i = 0; i < 2; i++)
+        {
+            Vector2 offset = Random.insideUnitCircle.normalized * Random.Range(0.5f, 1.0f);
+            Vector3 spawnPos = transform.position + (Vector3)offset;
+            spawner.SpawnAsteroid(spawnPos, childSize);
+        }
+    }
+
+    //Destruction of the asteroid if it is hit by both the player and bullet.
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.GetComponent<Bullet>() != null)
+        {
+            Destroy(collision.gameObject);
+            BreakAsteroid();
+            Destroy(gameObject);
+            return;
+        }
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Destroy(collision.gameObject);
+            BreakAsteroid();
+            Destroy(gameObject);
+        }
     }
 }

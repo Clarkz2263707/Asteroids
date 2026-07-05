@@ -27,6 +27,11 @@ public class AsteroidSpawner : MonoBehaviour
     private float spawnYMin = 0f;
     private float playerSafeDistance = 3;
 
+    [SerializeField] private GameObject largeAsteroidPrefab;
+    [SerializeField] private GameObject mediumAsteroidPrefab;
+    [SerializeField] private GameObject smallAsteroidPrefab;
+    [SerializeField] private int initialAsteroidCount = 6;
+
     void Start()
     {
         float screenHalfHeight = Camera.main.orthographicSize;
@@ -45,11 +50,36 @@ public class AsteroidSpawner : MonoBehaviour
 
     private void SpawnInitialAsteroids()
     {
-        // Spawn initial asteroids at random positions. Ensure that they do not spawn where the player is located. 
+        for (int i = 0; i < initialAsteroidCount; i++)
+        {
+            Vector3 spawnPos;
+            do
+            {
+                float x = Random.Range(spawnXMin, spawnXMax);
+                float y = Random.Range(spawnYMin, spawnYMax);
+                spawnPos = new Vector3(x, y, 0f);
+            } while (Vector3.Distance(spawnPos, Vector3.zero) < playerSafeDistance);
+
+            SpawnAsteroid(spawnPos, Asteroid.AsteroidSize.Large);
+        }
     }
 
     public void SpawnAsteroid(Vector3 position, Asteroid.AsteroidSize size)
     {
-       // Spawn an asteroid at the location specified by position parameter with the size specified by the size parameter.
+        GameObject prefab = size switch
+        {
+            Asteroid.AsteroidSize.Large => largeAsteroidPrefab,
+            Asteroid.AsteroidSize.Medium => mediumAsteroidPrefab,
+            Asteroid.AsteroidSize.Small => smallAsteroidPrefab,
+            _ => null
+        };
+        Quaternion rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+        GameObject instance = Instantiate(prefab, position, rotation);
+
+        Asteroid asteroid = instance.GetComponent<Asteroid>();
+        if (asteroid != null)
+        {
+            asteroid.SetSpawner(this);
+        }
     }
 }
