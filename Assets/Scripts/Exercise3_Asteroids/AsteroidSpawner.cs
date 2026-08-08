@@ -15,6 +15,7 @@
 *       where the player will be (at least 3 units away from the center in any direction).
 *       Hint: Vector3.Distance can tell you how far one point is away from another. 
 */
+using System.Drawing;
 using UnityEngine;
 
 public class AsteroidSpawner : MonoBehaviour
@@ -45,7 +46,7 @@ public class AsteroidSpawner : MonoBehaviour
 
     void Update()
     {
-        
+
     }
 
     private void SpawnInitialAsteroids()
@@ -66,13 +67,24 @@ public class AsteroidSpawner : MonoBehaviour
 
     public void SpawnAsteroid(Vector3 position, Asteroid.AsteroidSize size)
     {
-        GameObject prefab = size switch
+        GameObject prefab = null;
+
+        switch (size)
         {
-            Asteroid.AsteroidSize.Large => largeAsteroidPrefab,
-            Asteroid.AsteroidSize.Medium => mediumAsteroidPrefab,
-            Asteroid.AsteroidSize.Small => smallAsteroidPrefab,
-            _ => null
-        };
+            case Asteroid.AsteroidSize.Large:
+                prefab = largeAsteroidPrefab;
+                break;
+            case Asteroid.AsteroidSize.Medium:
+                prefab = mediumAsteroidPrefab;
+                break;
+            case Asteroid.AsteroidSize.Small:
+                prefab = smallAsteroidPrefab;
+                break;
+            default:
+                prefab = null;
+                break;
+        }
+
         Quaternion rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
         GameObject instance = Instantiate(prefab, position, rotation);
 
@@ -80,6 +92,11 @@ public class AsteroidSpawner : MonoBehaviour
         if (asteroid != null)
         {
             asteroid.SetSpawner(this);
+
         }
     }
 }
+
+
+
+
