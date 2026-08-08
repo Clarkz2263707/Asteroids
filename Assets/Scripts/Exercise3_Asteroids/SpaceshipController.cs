@@ -31,13 +31,27 @@ public class AsteroidsPlayerController : MonoBehaviour
     [SerializeField] private float thrustForce = 500f;
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private float fireCooldown = .5f;
+    [SerializeField] private int startingLives = 3;
+    [SerializeField] private float invincibilityTime = 3f;
+    [SerializeField] private Vector3 respawnPosition = default;
+    [SerializeField] private float InvincinbilityBlink = 8f;
 
+    private int currentLives;
     private float rotationInput;
     private float thrustInput;
+    private float firerateCooldown = -Mathf.Infinity;
+    private Collider2D playerCollider;
+    private SpriteRenderer[] spriteRenderers;
+    private bool isInvincible;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        playerCollider = GetComponent<Collider2D>();
+        spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        currentLives = startingLives;
+        if (respawnPosition == default) respawnPosition = Vector3.zero;
     }
 
     void Update()
@@ -78,7 +92,11 @@ public class AsteroidsPlayerController : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1"))
         {
-            FireBullet(); 
+            if (Time.time >= firerateCooldown + fireCooldown)
+            {
+                FireBullet();
+                firerateCooldown = Time.time;
+            }
         }
     }
 
@@ -86,7 +104,6 @@ public class AsteroidsPlayerController : MonoBehaviour
     {
         if (bulletPrefab == null)
         {
-            Debug.LogWarning("Bullet prefab not assigned!");
             return;
         }
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
