@@ -21,13 +21,13 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float bulletSpeed = 20f;
     [SerializeField] private float bulletLifetime = 5f;
 
-    private Rigidbody2D _rb;
+    private Rigidbody2D rigidbody;
     //sets the bullet velocity and lifetime
     void Start()
     {
-        _rb = GetComponent<Rigidbody2D>();
+        rigidbody = GetComponent<Rigidbody2D>();
 
-        _rb.linearVelocity = transform.up * bulletSpeed;
+        rigidbody.linearVelocity = transform.up * bulletSpeed;
         Destroy(gameObject, bulletLifetime);
     }
     //if impacts asteroid destroy itself
